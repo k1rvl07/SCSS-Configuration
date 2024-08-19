@@ -1,0 +1,167 @@
+// Миксин для адаптива
+
+@mixin respond-to($media) {
+    @if $media == mini-tablet {
+      @media only screen and (min-width: 510px) {
+        @content;
+      }
+    } @else if $media == big-tablet {
+      @media only screen and (min-width: 690px) {
+        @content;
+      }
+    } @else if $media == desktop {
+      @media only screen and (min-width: 1110px) {
+        @content;
+      }
+    } @else {
+      @warn "'#{ $media }' is not a valid media query.";
+    }
+}
+
+// Миксин для ширины и высоты
+  
+@mixin box($width, $height: $width) {
+    width: $width;
+    @if $height != 0px {
+      height: $height;
+    }
+}
+
+// Миксин для flex
+  
+@mixin flex(
+    $direction: row,
+    $justify: flex-start,
+    $align: flex-start,
+    $wrap: nowrap,
+    $gap: 0px
+  ) {
+    display: flex;
+  
+    @if $direction != row  {
+      flex-direction: $direction;
+    } @else if $direction == ROW {
+      flex-direction: ROW;
+    }
+  
+    @if $justify != flex-start {
+      justify-content: $justify;
+    }
+  
+    @if ($direction == row or $direction == row-reverse) and $align != flex-start {
+      align-items: $align;
+    } @else if $direction != row and $direction != row-reverse and $align == flex-start {
+      align-items: $align;
+    }
+  
+    @if $direction == column {
+      align-items: $align;
+    }
+  
+    @if $wrap != nowrap {
+      flex-wrap: $wrap;
+    }
+  
+    @if $gap != 0px {
+      gap: $gap;
+    }
+}
+  
+// Миксин для отступов
+
+@mixin axis-indent($type, $axis, $value, $yvalue: 0px) {
+    @if $axis == x {
+      #{$type}-left: $value;
+      #{$type}-right: $value;
+    } @else if $axis == y {
+      #{$type}-top: $value;
+      #{$type}-bottom: $value;
+    } @else if $axis == xy {
+      #{$type}-left: $value;
+      #{$type}-right: $value;
+      #{$type}-top: $yvalue;
+      #{$type}-bottom: $yvalue;
+    } @else {
+      @warn "'#{ $axis }' is not a valid axis.";
+    }
+}
+
+// Миксин для радиусов границ
+
+@mixin border-radius($top-left: null, $top-right: null, $bottom-right: null, $bottom-left: null) {
+    @if $top-left != null and $top-right != null and $bottom-right != null and $bottom-left != null {
+      border-radius: $top-left $top-right $bottom-right $bottom-left;
+    } @else if $top-left != null {
+      border-radius: $top-left;
+    }
+  }
+
+// Мапа для начертания шрифтов
+
+$font-weights-map: (
+  "thin": 100,
+  "extra-light": 200,
+  "light": 300,
+  "regular": 400,
+  "medium": 500,
+  "semi-bold": 600,
+  "bold": 700,
+  "extra-bold": 800,
+  "black": 900,
+  "extra-black": 1000,
+);
+
+// Перебор мапы начертания шрифтов
+
+@each $name, $weight in $font-weights-map {
+    %#{$name} {
+      font-weight: $weight;
+    }
+}
+
+// Список для свойств текста
+
+$text: (
+  heading "Roboto" regular normal map-get($colors-map, "heading-footer") 30px 38px 50px
+    60px,
+);
+
+// Перебор списка свойств текста
+
+@each $item in $text {
+    $name: nth($item, 1);
+    $font: nth($item, 2);
+    $font-weight: nth($item, 3);
+    $font-style: nth($item, 4);
+    $color: nth($item, 5);
+    $mobile-size: nth($item, 6);
+    $mini-tablet-size: nth($item, 7);
+    $big-tablet-size: nth($item, 8);
+    $desktop-size: nth($item, 9);
+  
+    %#{$name} {
+      font-family: $font;
+      @extend %#{$font-weight};
+      font-style: $font-style;
+      color: $color;
+      font-size: $mobile-size;
+  
+      @if $mobile-size != $mini-tablet-size {
+        @include respond-to(mini-tablet) {
+          font-size: $mini-tablet-size;
+        }
+      }
+  
+      @if $mini-tablet-size != $big-tablet-size {
+        @include respond-to(big-tablet) {
+          font-size: $big-tablet-size;
+        }
+      }
+  
+      @if $big-tablet-size != $desktop-size {
+        @include respond-to(desktop) {
+          font-size: $desktop-size;
+        }
+      }
+    }
+  }
